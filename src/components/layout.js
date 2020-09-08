@@ -1,6 +1,7 @@
 import React from "react"
 import "../static/styles/fonts.css"
 import styled from "styled-components"
+import SEO from "./seo"
 
 const LayoutContainer = styled.div`
   max-width: 768px;
@@ -26,6 +27,7 @@ const LayoutContainer = styled.div`
 
 const Layout = ({ children }) => (
     <LayoutContainer className="div">
+      <SEO title="Fluxura" description="An advanced differential equation solver" />
     <div className="Layout">
         <main className="Layout__content">{children}</main>
     </div>
