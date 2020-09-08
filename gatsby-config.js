@@ -5,6 +5,15 @@
  */
 
 module.exports = {
+  pathPrefix: "/fluxura-web",
   /* Your site config here */
-  plugins: [],
+  plugins: [
+    {
+      resolve: `gatsby-plugin-styled-components`,
+      options: {
+        // Add any options here
+      },
+    },
+    `gatsby-plugin-sass`,
+  ],
 }
