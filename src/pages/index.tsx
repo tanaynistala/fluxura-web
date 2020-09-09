@@ -17,9 +17,11 @@ export default class Home extends React.Component {
     b: 0,
     c: 0,
     d: 0,
+    e: 0,
     f0: 0,
     f1: 0,
     f2: 0,
+    f3: 0,
     answer: [],
     spanError: false,
     intervalError: false
@@ -54,15 +56,16 @@ export default class Home extends React.Component {
       this.state.b || 0,
       this.state.c || 0,
       this.state.d || 0,
+      this.state.e || 0
     ]
-    let x0 = [this.state.f0 || 0, this.state.f1 || 0, this.state.f2 || 0]
-    // let output = this.RungeKutta(model, x0, t, params)
+    let x0 = [this.state.f0 || 0, this.state.f1 || 0, this.state.f2 || 0, this.state.f3 || 0]
+    let output = this.RungeKutta(model, x0, t, params)
 
-    // this.setState({
-    //   answer: output[1][output[1].length - 1].map(x =>
-    //     x.toFixed(this.state.precision)
-    //   ),
-    // })
+    this.setState({
+      answer: output[1][output[1].length - 1].map(x =>
+        String(x).includes('e') ? Number(String(x).split('e')[0]).toFixed(this.state.precision || 2).concat('e', String(x).split('e')[1]) : x.toFixed(this.state.precision || 2)
+      ),
+    })
   }
 
   handleInputChange = event => {
@@ -71,26 +74,12 @@ export default class Home extends React.Component {
     const name = target.name
 
     this.setState({
-      [name]: value as number,
+      [name]: Number(value),
     })
   }
 
-  getParams() {
-    switch (this.state.order) {
-      case 1:
-        return ["a", "b"]
-      case 2:
-        return ["a", "b", "c"]
-      case 3:
-        return ["a", "b", "c", "d"]
-
-      default:
-        break
-    }
-  }
-
   ODEModel1(t: number, x: Array<number>, params: Array<number>) {
-    let xDot: Array<number> = [Number(params[0]) * Number(x[0]) + Number(params[1])]
+    let xDot: Array<number> = [Number(params[0]) * Number(x[0]) + Number(params[1])];
     return xDot
   }
 
@@ -100,7 +89,7 @@ export default class Home extends React.Component {
       Number(params[0]) * Number(x[1]) +
         Number(params[1]) * Number(x[0]) +
         Number(params[2]),
-    ]
+    ];
     return xDot
   }
 
@@ -112,7 +101,18 @@ export default class Home extends React.Component {
         Number(params[1]) * Number(x[1]) +
         Number(params[2]) * Number(x[0]) +
         Number(params[3]),
-    ]
+    ];
+    return xDot
+  }
+
+  ODEModel4(t: number, x: Array<number>, params: Array<number>) {
+    let xDot: Array<number> = [
+      Number(x[1]), 
+      Number(x[2]), 
+      Number(x[3]), 
+      Number(params[0]) * Number(x[0]) + Number(params[1]) * Number(x[1]), 
+      Number(params[2]) * Number(x[2]) + Number(params[3]) * Number(x[3])
+    ];
     return xDot
   }
 
@@ -237,14 +237,14 @@ export default class Home extends React.Component {
                   Order
                 </Label>
                 <Label style={{ fontSize: `12px`, padding: `0` }}>
-                  Order must be 1, 2, or 3.
+                  Order must be between 1 and 4.
                 </Label>
               </div>
               <Input
                 name="order"
                 type="number"
                 min={1}
-                max={3}
+                max={4}
                 id="order"
                 placeholder="1"
                 onChange={this.handleInputChange}
@@ -335,6 +335,21 @@ export default class Home extends React.Component {
           </Container>
           <Container>
             <Subheading style={{ margin: `0 auto 0.5em auto` }}>
+              Equation
+            </Subheading>
+            <div className="equation" style={{margin: `0.5em auto`}}>
+            f<span style={{ verticalAlign: `super` }}>({this.state.order})</span> =&nbsp;
+            {Array.apply(null, { length: this.state.order }).map(Number.call, Number).map(param => (
+              <>
+                {["a", "b", "c", "d", "e"][param]}
+                f<span style={{ verticalAlign: `super` }}>({this.state.order - param - 1})</span> +&nbsp;
+              </>
+            ))}
+            {["a", "b", "c", "d", "e"][this.state.order]}
+            </div>
+          </Container>
+          <Container>
+            <Subheading style={{ margin: `0 auto 0.5em auto` }}>
               Parameters
             </Subheading>
             <div className="form-grid">
@@ -386,6 +401,21 @@ export default class Home extends React.Component {
               ) : (
                 <></>
               )}
+              {this.state.order > 3 ? (
+                <>
+                  <Label htmlFor="e">e</Label>
+                  <Input
+                    name="e"
+                    type="number"
+                    step={0.01}
+                    id="e"
+                    placeholder="0"
+                    onChange={this.handleInputChange}
+                  />
+                </>
+              ) : (
+                  <></>
+                )}
             </div>
           </Container>
           <Container>
@@ -393,7 +423,7 @@ export default class Home extends React.Component {
               Initial Conditions
             </Subheading>
             <div className="form-grid">
-              <Label htmlFor="f-0">f(x)</Label>
+              <Label htmlFor="f0" className="equation">f<span style={{ verticalAlign: `super` }}>(0)</span></Label>
               <Input
                 name="f0"
                 type="number"
@@ -404,7 +434,7 @@ export default class Home extends React.Component {
               />
               {this.state.order > 1 ? (
                 <>
-                  <Label htmlFor="">f'(x)</Label>
+                  <Label htmlFor="f1" className="equation">f<span style={{ verticalAlign: `super` }}>(1)</span></Label>
                   <Input
                     name="f1"
                     type="number"
@@ -419,7 +449,7 @@ export default class Home extends React.Component {
               )}
               {this.state.order > 2 ? (
                 <>
-                  <Label htmlFor="f2">f''(x)</Label>
+                  <Label htmlFor="f2" className="equation">f<span style={{ verticalAlign: `super` }}>(2)</span></Label>
                   <Input
                     name="f2"
                     type="number"
@@ -432,6 +462,21 @@ export default class Home extends React.Component {
               ) : (
                 <></>
               )}
+              {this.state.order > 3 ? (
+                <>
+                  <Label htmlFor="f3" className="equation">f<span style={{ verticalAlign: `super` }}>(3)</span></Label>
+                  <Input
+                    name="f3"
+                    type="number"
+                    step={0.01}
+                    id="f3"
+                    placeholder="0"
+                    onChange={this.handleInputChange}
+                  />
+                </>
+              ) : (
+                  <></>
+                )}
             </div>
           </Container>
           <CustomButton type="submit">
@@ -447,11 +492,11 @@ export default class Home extends React.Component {
               Answer
             </Subheading>
             <div className="form-grid">
-              <Label>f(x)</Label>
+                <Label className="equation">f<span style={{ verticalAlign: `super` }}>(0)</span></Label>
               <AnswerContainer>{this.state.answer[0]}</AnswerContainer>
               {this.state.order > 1 ? (
                 <>
-                  <Label>f'(x)</Label>
+                    <Label className="equation">f<span style={{ verticalAlign: `super` }}>(1)</span></Label>
                   <AnswerContainer>{this.state.answer[1]}</AnswerContainer>
                 </>
               ) : (
@@ -459,8 +504,16 @@ export default class Home extends React.Component {
               )}
               {this.state.order > 2 ? (
                 <>
-                  <Label>f''(x)</Label>
+                  <Label className="equation">f<span style={{ verticalAlign: `super` }}>(2)</span></Label>
                   <AnswerContainer>{this.state.answer[2]}</AnswerContainer>
+                </>
+              ) : (
+                <></>
+              )}
+              {this.state.order > 3 ? (
+                <>
+                  <Label className="equation">f<span style={{ verticalAlign: `super` }}>(3)</span></Label>
+                  <AnswerContainer>{this.state.answer[3]}</AnswerContainer>
                 </>
               ) : (
                 <></>
