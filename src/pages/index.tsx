@@ -110,8 +110,7 @@ export default class Home extends React.Component {
       Number(x[1]), 
       Number(x[2]), 
       Number(x[3]), 
-      Number(params[0]) * Number(x[0]) + Number(params[1]) * Number(x[1]), 
-      Number(params[2]) * Number(x[2]) + Number(params[3]) * Number(x[3])
+      Number(params[0]) * Number(x[3]) + Number(params[1]) * Number(x[2]) + Number(params[2]) * Number(x[1]) + Number(params[3]) * Number(x[0]) + Number(params[4])
     ];
     return xDot
   }
