@@ -212,7 +212,7 @@ export default class Home extends React.Component {
         <Subheading>
           Learn more about it{" "}
           <a
-            href="https://tanaynistala.github.io/fluxura-landing-page"
+            href="https://fluxura.tanaynistala.com"
             target="_blank"
           >
             here
